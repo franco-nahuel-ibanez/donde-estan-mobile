@@ -3,6 +3,7 @@ import React from 'react'
 import { Header } from '../../components/Header'
 import MissingList from './components/MissingList'
 import { useGetLastMissing } from '../../hooks/useGetLastMissing'
+import InputSearch from '../search/components/InputSearch'
 
 export default function Home() {
   

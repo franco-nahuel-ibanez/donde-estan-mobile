@@ -23,13 +23,10 @@ export const useGetLastMissing = () => {
     const getLastMissing = async () => {
       try {
         const url = "http://192.168.0.103:3000/api/missing/last";
-    
         const { data } = await axios.get<LastMissingResponse>(url);
-        console.log(data)
         setLastMissing(data.data);
       } catch (error) {
         showToast("Error al obtener los últimos desaparecidos")
-        // showAlert("Error", "Error al obtener los últimos desaparecidos");
       }
     };
 
