@@ -5,6 +5,7 @@ import { Header } from './Header';
 import { IMissing } from '../interfaces';
 import { useTheme } from '@react-navigation/native';
 
+
 interface Props {
   showModal: boolean,
   setShowModal: (value: boolean) => void,
