@@ -6,7 +6,9 @@ export const useRegister = async (data: IRegisterValues) => {
 
   const imageToBlob = async (uri: string) => {
     try {
-
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      return blob;
     } catch (error) {
       console.log('algo salio mal');
     }
