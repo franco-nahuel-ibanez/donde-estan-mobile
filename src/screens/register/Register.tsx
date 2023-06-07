@@ -1,15 +1,28 @@
 import React from 'react'
-import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, TextInput, Button } from 'react-native'
 import { Header } from '../../components/Header'
 import { useFormik } from 'formik'
 import { register } from './schemas/Index';
 import RNDateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import * as ImagePicker from 'expo-image-picker';
+import { IImage } from '../../interfaces';
+import { useRegister } from '../../hooks/useRegister';
+
 
 
 
 export default function Register() {
   const [date, setDate] = React.useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = React.useState(false);
+  const [image, setImage] = React.useState<IImage>({
+    uri: '',
+    name: '',
+    type: '',
+  });
+
+  const onSubmit = () => {
+    useRegister(values);
+  }
 
   const {
     errors,
@@ -19,21 +32,20 @@ export default function Register() {
     handleBlur,
     touched,
     setFieldValue,
+    isSubmitting
   } = useFormik({
     initialValues: {
       name: '',
       lastName: '',
-      age: '',
+      age: 0,
       dateOfDisappearance: date,
       placeOfDisappearance: '',
       description: '',
-      image: '',
+      image: image,
       phone: '',
       email: '',
     },
-    onSubmit: (values) => {
-      console.log("")
-    },
+    onSubmit,
     validationSchema: register, 
   });
 
@@ -42,6 +54,29 @@ export default function Register() {
     const currentDate = selectedDate || date;
     setDate(currentDate);
     setFieldValue('dateOfDisappearance', currentDate);
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      // allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    
+    if (!result.canceled) {
+      setImage({
+        uri: result.assets[0].uri,
+        name: result.assets[0].fileName,
+        type: result.assets[0].type,
+      });
+      setFieldValue('image', {
+        uri: result.assets[0].uri,
+        name: result.assets[0].fileName,
+        type: result.assets[0].type,
+      });
+    }
   };
 
   return (
@@ -114,7 +149,7 @@ export default function Register() {
             style={styles.input}
             autoComplete='off'
             autoCorrect={false}
-            value={values.age}
+            value={values.age.toString()}
             onChangeText={handleChange('age')}
             onBlur={handleBlur('age')}
           />
@@ -202,23 +237,26 @@ export default function Register() {
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Imagen</Text>        
-          <TextInput
-            placeholder="Imagen"
-            style={styles.input}
-            autoComplete='off'
-            autoCorrect={false}
-            value={values.image}
-            onChangeText={handleChange('image')}
-            onBlur={handleBlur('image')}
-          />
           {
-            (touched.image && errors.image) && (
-              <Text style={styles.error}>{errors.image}</Text>
+            (image.uri) && (
+              <Image
+                source={{ uri: image.uri }}
+                style={{
+                  width: 200,
+                  height: 200,
+                  alignSelf: 'center',
+                  marginBottom: 20,
+                }}
+              />
+            )
+          }
+          <Button title={`${image.uri ? 'Cambiar Imagen' : 'Seleccionar Imagen'}`} onPress={pickImage} />
+          {
+            (touched.image && errors.image && !image.uri) && (
+              <Text style={styles.error}>{'La imagen es requerida'}</Text>
             )
           }
         </View>
-
-
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Descripción</Text>        
@@ -241,9 +279,8 @@ export default function Register() {
           }
         </View>
 
-
-
         <TouchableOpacity
+          // disabled={!isSubmitting}
           onPress={() => handleSubmit()}
           activeOpacity={0.8}
           style={styles.button}

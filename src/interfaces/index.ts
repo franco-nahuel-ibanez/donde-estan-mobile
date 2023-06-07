@@ -17,3 +17,21 @@ export interface IMissing {
   createdAt:            null;
   updatedAt:            null;
 }
+
+export interface IImage {
+  uri: string;
+  name?: string | null | undefined;
+  type?: string | null | undefined;
+}
+
+export interface IRegisterValues {
+  name: string;
+  lastName: string;
+  age: number;
+  dateOfDisappearance: string | Date;
+  placeOfDisappearance: string;
+  description: string;
+  image: IImage | null | undefined;
+  phone: string;
+  email: string;
+}
