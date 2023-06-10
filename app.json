@@ -11,6 +11,10 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "permissions": [
+      "ACCESS_NETWORK_STATE",
+      "INTERNET"
+    ],
     "assetBundlePatterns": [
       "**/*"
     ],

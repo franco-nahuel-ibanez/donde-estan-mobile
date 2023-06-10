@@ -5,24 +5,15 @@ import { useFormik } from 'formik'
 import { register } from './schemas/Index';
 import RNDateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
-import { IImage } from '../../interfaces';
 import { useRegister } from '../../hooks/useRegister';
-
-
-
+import Spinner from 'react-native-loading-spinner-overlay';
 
 export default function Register() {
   const [date, setDate] = React.useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = React.useState(false);
-  const [image, setImage] = React.useState<IImage>({
-    uri: '',
-    name: '',
-    type: '',
-  });
+  const [image, setImage] = React.useState<string>("");
 
-  const onSubmit = () => {
-    useRegister(values);
-  }
+  const { onSubmit, loading } = useRegister();
 
   const {
     errors,
@@ -32,7 +23,6 @@ export default function Register() {
     handleBlur,
     touched,
     setFieldValue,
-    isSubmitting
   } = useFormik({
     initialValues: {
       name: '',
@@ -59,23 +49,15 @@ export default function Register() {
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      // allowsEditing: true,
+      allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
     });
 
     
     if (!result.canceled) {
-      setImage({
-        uri: result.assets[0].uri,
-        name: result.assets[0].fileName,
-        type: result.assets[0].type,
-      });
-      setFieldValue('image', {
-        uri: result.assets[0].uri,
-        name: result.assets[0].fileName,
-        type: result.assets[0].type,
-      });
+      setImage(result.assets[0].uri);
+      setFieldValue('image', result.assets[0].uri);  
     }
   };
 
@@ -89,6 +71,12 @@ export default function Register() {
             value={date}
             onChange={handleDateChange}
           />
+        )
+      }
+
+      {
+        loading && (
+          <Spinner visible={true}/>
         )
       }
       
@@ -238,9 +226,9 @@ export default function Register() {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Imagen</Text>        
           {
-            (image.uri) && (
+            (image) && (
               <Image
-                source={{ uri: image.uri }}
+                source={{ uri: image}}
                 style={{
                   width: 200,
                   height: 200,
@@ -250,9 +238,9 @@ export default function Register() {
               />
             )
           }
-          <Button title={`${image.uri ? 'Cambiar Imagen' : 'Seleccionar Imagen'}`} onPress={pickImage} />
+          <Button title={`${image? 'Cambiar Imagen' : 'Seleccionar Imagen'}`} color={"#0d6efd"} onPress={pickImage} />
           {
-            (touched.image && errors.image && !image.uri) && (
+            (touched.image && errors.image && !image) && (
               <Text style={styles.error}>{'La imagen es requerida'}</Text>
             )
           }
@@ -280,17 +268,13 @@ export default function Register() {
         </View>
 
         <TouchableOpacity
-          // disabled={!isSubmitting}
           onPress={() => handleSubmit()}
           activeOpacity={0.8}
           style={styles.button}
         >
           <Text style={styles.buttonText}>Enviar</Text>
         </TouchableOpacity>
-
-
       </View>
-    
     </ScrollView>
   )
 }
@@ -305,7 +289,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     textAlign: 'center',
-    // textTransform: 'uppercase',
     fontWeight: 'bold',
     marginTop: 10,
     marginBottom: 15,
@@ -346,7 +329,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   button: {
-    backgroundColor: '#f29d64',
+    backgroundColor: '#0d6efd',
     borderRadius: 5,
     paddingVertical: 10,
     paddingHorizontal: 20,
